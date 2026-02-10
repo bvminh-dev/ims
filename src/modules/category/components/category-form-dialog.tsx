@@ -58,21 +58,29 @@ export function CategoryFormDialog({
     setIsSubmitting(true);
 
     try {
+      let result;
       if (category) {
-        await updateCategory({
+        result = await updateCategory({
           slug: category.slug,
           updateData: formData as any,
         });
       } else {
-        await createCategory({
+        result = await createCategory({
           title: formData.title,
           slug: formData.slug,
           description: formData.description,
         });
       }
+      
+      if (result?.success === false && result?.message) {
+        alert(result.message);
+        return;
+      }
+      
       onClose();
     } catch (error) {
       console.error(error);
+      alert("An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

@@ -10,11 +10,13 @@ import { CategoryFormDialog } from "./category-form-dialog";
 interface CategoryPageClientProps {
   categories: CategoryItemData[];
   total: number;
+  canEdit: boolean;
 }
 
 export function CategoryPageClient({
   categories,
   total,
+  canEdit,
 }: CategoryPageClientProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editCategory, setEditCategory] =
@@ -34,22 +36,25 @@ export function CategoryPageClient({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Categories</h2>
-        <button
-          onClick={() => {
-            setEditCategory(null);
-            setDialogOpen(true);
-          }}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-        >
-          <Plus className="w-4 h-4" />
-          Add Category
-        </button>
+        {canEdit && (
+          <button
+            onClick={() => {
+              setEditCategory(null);
+              setDialogOpen(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+          >
+            <Plus className="w-4 h-4" />
+            Add Category
+          </button>
+        )}
       </div>
 
       <CategoryTable
         categories={categories}
         total={total}
         onEdit={handleEdit}
+        canEdit={canEdit}
       />
 
       <CategoryFormDialog

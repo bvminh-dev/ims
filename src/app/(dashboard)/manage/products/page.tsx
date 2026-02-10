@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { fetchProducts } from "@/modules/product";
 import { ProductTable } from "@/modules/product/components";
 import { QueryFilter } from "@/shared/types";
+import { canEdit } from "@/shared/libs";
 
 export const dynamic = "force-dynamic";
 
@@ -14,12 +15,15 @@ export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
   const params = await searchParams;
-  const result = await fetchProducts({
-    page: Number(params.page) || 1,
-    limit: 10,
-    search: params.search,
-    status: params.status,
-  });
+  const [result, userCanEdit] = await Promise.all([
+    fetchProducts({
+      page: Number(params.page) || 1,
+      limit: 10,
+      search: params.search,
+      status: params.status,
+    }),
+    canEdit(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -28,6 +32,7 @@ export default async function ProductsPage({
         <ProductTable
           products={result?.products || []}
           total={result?.total || 0}
+          canEdit={userCanEdit}
         />
       </Suspense>
     </div>

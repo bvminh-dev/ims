@@ -5,7 +5,7 @@ import { ProductForm } from "@/modules/product/components";
 import { getProductBySlug } from "@/modules/product";
 import { fetchAllCategories } from "@/modules/category";
 import { UserModel } from "@/shared/schemas";
-import { connectToDatabase } from "@/shared/libs";
+import { connectToDatabase, canEdit } from "@/shared/libs";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +20,11 @@ export default async function EditProductPage({
 
   if (!userId) {
     redirect("/sign-in");
+  }
+
+  // Check if user has permission to edit products
+  if (!(await canEdit())) {
+    redirect("/manage/products");
   }
 
   const { slug } = await params;

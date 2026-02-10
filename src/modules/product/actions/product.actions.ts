@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { connectToDatabase } from "@/shared/libs";
+import { connectToDatabase, canEdit } from "@/shared/libs";
 import { ProductModel, StockHistoryModel } from "@/shared/schemas";
 import {
   CreateProductParams,
@@ -19,6 +19,14 @@ export async function createProduct(
   { success: boolean; message?: string; data?: ProductItemData } | undefined
 > {
   try {
+    // Check if user has permission to create
+    if (!(await canEdit())) {
+      return {
+        success: false,
+        message: "You don't have permission to create products. Only admins can perform this action.",
+      };
+    }
+
     await connectToDatabase();
 
     const existProduct = await ProductModel.findOne({
@@ -138,6 +146,14 @@ export async function updateProduct(
   params: UpdateProductParams,
 ): Promise<{ success: boolean; message?: string } | undefined> {
   try {
+    // Check if user has permission to update
+    if (!(await canEdit())) {
+      return {
+        success: false,
+        message: "You don't have permission to update products. Only admins can perform this action.",
+      };
+    }
+
     await connectToDatabase();
 
     const findProduct = await ProductModel.findOne({ slug: params.slug });
@@ -195,15 +211,23 @@ export async function updateProduct(
 
 export async function deleteProduct(
   slug: string,
-): Promise<{ success: boolean } | undefined> {
+): Promise<{ success: boolean; message?: string } | undefined> {
   try {
+    // Check if user has permission to delete
+    if (!(await canEdit())) {
+      return {
+        success: false,
+        message: "You don't have permission to delete products. Only admins can perform this action.",
+      };
+    }
+
     await connectToDatabase();
 
     await ProductModel.findOneAndUpdate({ slug }, { _destroy: true });
 
     revalidatePath("/manage/products");
 
-    return { success: true };
+    return { success: true, message: "Product deleted successfully!" };
   } catch (error) {
     console.log(error);
   }
@@ -213,6 +237,14 @@ export async function updateStock(
   params: UpdateStockParams,
 ): Promise<{ success: boolean; message?: string } | undefined> {
   try {
+    // Check if user has permission to update stock
+    if (!(await canEdit())) {
+      return {
+        success: false,
+        message: "You don't have permission to update stock. Only admins can perform this action.",
+      };
+    }
+
     await connectToDatabase();
 
     const findProduct = await ProductModel.findOne({ slug: params.slug });

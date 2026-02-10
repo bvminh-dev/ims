@@ -91,20 +91,28 @@ export function ProductForm({
     setIsSubmitting(true);
 
     try {
+      let result;
       if (product) {
-        await updateProduct({
+        result = await updateProduct({
           slug: product.slug,
           updateData: formData as any,
         });
       } else {
-        await createProduct({
+        result = await createProduct({
           ...formData,
           author: authorId,
         });
       }
+      
+      if (result?.success === false && result?.message) {
+        alert(result.message);
+        return;
+      }
+      
       router.push("/manage/products");
     } catch (error) {
       console.error(error);
+      alert("An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

@@ -14,9 +14,10 @@ import { deleteProduct } from "../actions";
 interface ProductTableProps {
   products: ProductItemData[];
   total: number;
+  canEdit: boolean;
 }
 
-export function ProductTable({ products, total }: ProductTableProps) {
+export function ProductTable({ products, total, canEdit }: ProductTableProps) {
   const {
     currentPage,
     handleChangePage,
@@ -34,7 +35,10 @@ export function ProductTable({ products, total }: ProductTableProps) {
     if (!deleteSlug) return;
 
     setIsDeleting(true);
-    await deleteProduct(deleteSlug);
+    const result = await deleteProduct(deleteSlug);
+    if (result?.success === false && result?.message) {
+      alert(result.message);
+    }
     setIsDeleting(false);
     setDeleteSlug(null);
   };
@@ -59,13 +63,15 @@ export function ProductTable({ products, total }: ProductTableProps) {
             <option value="INACTIVE">Inactive</option>
             <option value="OUT_OF_STOCK">Out of Stock</option>
           </select>
-          <Link
-            href="/manage/products/create"
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-          >
-            <Plus className="w-4 h-4" />
-            Add Product
-          </Link>
+          {canEdit && (
+            <Link
+              href="/manage/products/create"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+            >
+              <Plus className="w-4 h-4" />
+              Add Product
+            </Link>
+          )}
         </div>
 
         {/* Table */}
@@ -91,9 +97,11 @@ export function ProductTable({ products, total }: ProductTableProps) {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                {canEdit && (
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -145,22 +153,24 @@ export function ProductTable({ products, total }: ProductTableProps) {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <StatusBadge status={product.status} />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center gap-2">
-                        <Link
-                          href={`/manage/products/edit/${product.slug}`}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Link>
-                        <button
-                          onClick={() => setDeleteSlug(product.slug)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+                    {canEdit && (
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/manage/products/edit/${product.slug}`}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Link>
+                          <button
+                            onClick={() => setDeleteSlug(product.slug)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 );
               })}

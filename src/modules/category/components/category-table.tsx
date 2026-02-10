@@ -16,12 +16,14 @@ interface CategoryTableProps {
   categories: CategoryItemData[];
   total: number;
   onEdit: (category: CategoryItemData) => void;
+  canEdit: boolean;
 }
 
 export function CategoryTable({
   categories,
   total,
   onEdit,
+  canEdit,
 }: CategoryTableProps) {
   const { currentPage, handleChangePage, handleSearchData, handleSelectStatus } =
     useQueryString();
@@ -34,7 +36,10 @@ export function CategoryTable({
     if (!deleteSlug) return;
 
     setIsDeleting(true);
-    await deleteCategory(deleteSlug);
+    const result = await deleteCategory(deleteSlug);
+    if (result?.success === false && result?.message) {
+      alert(result.message);
+    }
     setIsDeleting(false);
     setDeleteSlug(null);
   };
@@ -80,9 +85,11 @@ export function CategoryTable({
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Created
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                {canEdit && (
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -108,22 +115,24 @@ export function CategoryTable({
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(category.created_at).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => onEdit(category)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setDeleteSlug(category.slug)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+                  {canEdit && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => onEdit(category)}
+                          className="text-blue-600 hover:text-blue-900"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteSlug(category.slug)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

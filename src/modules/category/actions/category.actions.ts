@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { connectToDatabase } from "@/shared/libs";
+import { connectToDatabase, canEdit } from "@/shared/libs";
 import { CategoryModel } from "@/shared/schemas";
 import {
   CategoryItemData,
@@ -15,6 +15,14 @@ export async function createCategory(
   params: CreateCategoryParams,
 ): Promise<{ success: boolean; message?: string; data?: CategoryItemData } | undefined> {
   try {
+    // Check if user has permission to create
+    if (!(await canEdit())) {
+      return {
+        success: false,
+        message: "You don't have permission to create categories. Only admins can perform this action.",
+      };
+    }
+
     await connectToDatabase();
 
     const existCategory = await CategoryModel.findOne({ slug: params.slug });
@@ -115,6 +123,14 @@ export async function updateCategory(
   params: UpdateCategoryParams,
 ): Promise<{ success: boolean; message?: string } | undefined> {
   try {
+    // Check if user has permission to update
+    if (!(await canEdit())) {
+      return {
+        success: false,
+        message: "You don't have permission to update categories. Only admins can perform this action.",
+      };
+    }
+
     await connectToDatabase();
 
     const findCategory = await CategoryModel.findOne({ slug: params.slug });
@@ -144,15 +160,23 @@ export async function updateCategory(
 
 export async function deleteCategory(
   slug: string,
-): Promise<{ success: boolean } | undefined> {
+): Promise<{ success: boolean; message?: string } | undefined> {
   try {
+    // Check if user has permission to delete
+    if (!(await canEdit())) {
+      return {
+        success: false,
+        message: "You don't have permission to delete categories. Only admins can perform this action.",
+      };
+    }
+
     await connectToDatabase();
 
     await CategoryModel.findOneAndUpdate({ slug }, { _destroy: true });
 
     revalidatePath("/manage/categories");
 
-    return { success: true };
+    return { success: true, message: "Category deleted successfully!" };
   } catch (error) {
     console.log(error);
   }

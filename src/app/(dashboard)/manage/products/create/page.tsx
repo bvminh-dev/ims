@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { ProductForm } from "@/modules/product/components";
 import { fetchAllCategories } from "@/modules/category";
 import { UserModel } from "@/shared/schemas";
-import { connectToDatabase } from "@/shared/libs";
+import { connectToDatabase, canEdit } from "@/shared/libs";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +13,11 @@ export default async function CreateProductPage() {
 
   if (!userId) {
     redirect("/sign-in");
+  }
+
+  // Check if user has permission to create products
+  if (!(await canEdit())) {
+    redirect("/manage/products");
   }
 
   // Get or create user in MongoDB
