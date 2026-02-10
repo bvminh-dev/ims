@@ -203,6 +203,162 @@ Phải bao gồm: `node_modules`, `.next/`, `.env`, `.env*.local`, `.DS_Store`, 
 
 Dùng `@theme inline { }` để đăng ký biến vào Tailwind 4 (ví dụ `--color-primary: var(--primary)`).
 
+### 3.4 Cấu hình Tailwind CSS 4
+
+**QUAN TRỌNG:** Dự án này sử dụng Tailwind CSS 4 với PostCSS plugin mới. Cấu hình khác với Tailwind CSS 3.
+
+#### 3.4.1 Cài đặt dependencies
+
+```bash
+npm install -D tailwindcss@^4 @tailwindcss/postcss@^4
+```
+
+#### 3.4.2 File cấu hình cần tạo
+
+**`tailwind.config.ts`** (TypeScript config):
+
+```typescript
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/modules/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+export default config;
+```
+
+**`postcss.config.mjs`** (PostCSS config - QUAN TRỌNG cho Tailwind 4):
+
+```javascript
+/** @type {import('postcss-load-config').Config} */
+const config = {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
+};
+
+export default config;
+```
+
+**`src/app/globals.css`** (Import Tailwind và định nghĩa CSS variables):
+
+```css
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
+  --color-sidebar-bg: #1e293b;
+  --color-sidebar-text: #e2e8f0;
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-muted: #64748b;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+```
+
+#### 3.4.3 Import globals.css trong Root Layout
+
+File `src/app/layout.tsx` PHẢI import `globals.css`:
+
+```typescript
+import "./globals.css";
+```
+
+#### 3.4.4 Cách sử dụng Tailwind classes
+
+**Utility classes cơ bản:**
+
+```tsx
+// Spacing
+<div className="p-4 m-2">Padding 4, Margin 2</div>
+<div className="px-6 py-3">Padding X: 6, Y: 3</div>
+
+// Colors
+<div className="bg-blue-600 text-white">Background blue, text white</div>
+<div className="text-gray-900 hover:text-gray-700">Text color với hover</div>
+
+// Layout
+<div className="flex items-center justify-between">Flexbox</div>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">Grid responsive</div>
+
+// Typography
+<h1 className="text-3xl font-bold text-gray-900">Heading</h1>
+<p className="text-sm text-gray-600">Small text</p>
+
+// Borders & Shadows
+<div className="rounded-lg shadow border border-gray-200">Card style</div>
+
+// Responsive (mobile-first)
+<div className="w-full md:w-1/2 lg:w-1/3">Responsive width</div>
+```
+
+**Custom CSS variables:**
+
+```tsx
+// Sử dụng biến đã định nghĩa trong globals.css
+<div style={{ backgroundColor: 'var(--color-primary)' }}>
+  Custom color
+</div>
+
+// Hoặc dùng Tailwind với custom color (nếu đã map trong theme)
+<div className="bg-primary">Primary background</div>
+```
+
+#### 3.4.5 Troubleshooting - Mac & Windows
+
+**Lỗi thường gặp và cách fix:**
+
+| Lỗi                              | Nguyên nhân                  | Giải pháp                                                              |
+| -------------------------------- | ---------------------------- | ---------------------------------------------------------------------- |
+| Tailwind classes không hoạt động | Chưa import `globals.css`    | Thêm `import "./globals.css"` vào `layout.tsx`                         |
+| PostCSS plugin không tìm thấy    | Thiếu `@tailwindcss/postcss` | `npm install -D @tailwindcss/postcss@^4`                               |
+| Styles không apply trên Windows  | Path case sensitivity        | Đảm bảo import path đúng: `./globals.css` (không dùng `./Globals.css`) |
+| Hot reload không cập nhật styles | Cache Next.js                | Xóa `.next/` folder và restart dev server                              |
+| Build error trên Mac             | PostCSS config sai format    | Dùng `.mjs` extension cho `postcss.config.mjs`                         |
+
+**Kiểm tra Tailwind đã hoạt động:**
+
+1. Thêm class test vào component:
+   ```tsx
+   <div className="bg-blue-500 text-white p-4">Test Tailwind</div>
+   ```
+2. Nếu không thấy màu → kiểm tra:
+   - `globals.css` đã được import trong `layout.tsx`?
+   - `postcss.config.mjs` có đúng format?
+   - `tailwind.config.ts` có include đúng paths?
+   - Restart dev server sau khi thay đổi config
+
+**Cross-platform compatibility:**
+
+- **Windows:** Đảm bảo dùng forward slashes `/` trong paths, không dùng backslashes `\`
+- **Mac/Linux:** Không có vấn đề đặc biệt
+- **Path trong `tailwind.config.ts`:** Luôn dùng relative paths với `./src/...`
+- **File extensions:** Dùng `.mjs` cho PostCSS config (không dùng `.js` hoặc `.cjs`)
+
+**Best practices:**
+
+1. Luôn dùng Tailwind utility classes thay vì inline styles khi có thể
+2. Tạo custom components cho patterns lặp lại (như `Button`, `Card`)
+3. Sử dụng responsive prefixes (`sm:`, `md:`, `lg:`, `xl:`) cho mobile-first design
+4. Dùng CSS variables cho theme colors thay vì hardcode màu
+5. Group related classes với Prettier plugin hoặc sắp xếp thủ công
+
 ---
 
 ## Bước 4: Shared - Libs, Constants, Types
@@ -755,7 +911,10 @@ export function DashboardStats({ stats }: { stats: DashboardStatsType }) {
 
 - [ ] Scaffold Next.js + cài dependencies
 - [ ] Tạo `.env.example` và `.gitignore`
-- [ ] Tạo `globals.css` với CSS variables + Tailwind theme
+- [ ] Tạo `tailwind.config.ts` với content paths đúng
+- [ ] Tạo `postcss.config.mjs` với `@tailwindcss/postcss` plugin
+- [ ] Tạo `globals.css` với `@import "tailwindcss"` + CSS variables + `@theme inline`
+- [ ] Import `globals.css` trong `src/app/layout.tsx`
 - [ ] Tạo `src/shared/libs/mongoose.ts` (singleton connection)
 - [ ] Tạo `src/shared/constants/` (enums + app constants)
 - [ ] Tạo `src/shared/types/` (models + app types + params + common)
