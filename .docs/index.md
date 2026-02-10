@@ -1,5 +1,9 @@
 # Documentation Index
 
+## Build Guide
+
+- ./summary-step-build.md
+
 ## Overview
 
 - ./overview.md
