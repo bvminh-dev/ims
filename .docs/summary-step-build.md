@@ -188,18 +188,18 @@ Phải bao gồm: `node_modules`, `.next/`, `.env`, `.env*.local`, `.DS_Store`, 
 
 Định nghĩa các biến CSS custom cho theme:
 
-| Biến               | Giá trị   | Mô tả            |
-| ------------------- | --------- | ----------------- |
-| `--background`      | `#f8fafc` | Nền app           |
-| `--foreground`      | `#0f172a` | Chữ chính         |
-| `--sidebar-bg`      | `#1e293b` | Nền sidebar       |
-| `--sidebar-text`    | `#e2e8f0` | Chữ sidebar       |
-| `--primary`         | `#3b82f6` | Màu chính (blue)  |
-| `--primary-hover`   | `#2563eb` | Hover màu chính   |
-| `--success`         | `#22c55e` | Thành công (green) |
-| `--warning`         | `#f59e0b` | Cảnh báo (amber)  |
-| `--danger`          | `#ef4444` | Nguy hiểm (red)   |
-| `--muted`           | `#64748b` | Chữ phụ (gray)    |
+| Biến              | Giá trị   | Mô tả              |
+| ----------------- | --------- | ------------------ |
+| `--background`    | `#f8fafc` | Nền app            |
+| `--foreground`    | `#0f172a` | Chữ chính          |
+| `--sidebar-bg`    | `#1e293b` | Nền sidebar        |
+| `--sidebar-text`  | `#e2e8f0` | Chữ sidebar        |
+| `--primary`       | `#3b82f6` | Màu chính (blue)   |
+| `--primary-hover` | `#2563eb` | Hover màu chính    |
+| `--success`       | `#22c55e` | Thành công (green) |
+| `--warning`       | `#f59e0b` | Cảnh báo (amber)   |
+| `--danger`        | `#ef4444` | Nguy hiểm (red)    |
+| `--muted`         | `#64748b` | Chữ phụ (gray)     |
 
 Dùng `@theme inline { }` để đăng ký biến vào Tailwind 4 (ví dụ `--color-primary: var(--primary)`).
 
@@ -354,11 +354,11 @@ Mỗi thư mục (`constants/`, `types/`, `types/models/`, `schemas/`, `hooks/`,
 
 ### Danh sách schemas cần tạo
 
-| File                      | Model Name     | Các field đặc biệt                                    |
-| ------------------------- | -------------- | ------------------------------------------------------ |
-| `user.schema.ts`          | `User`         | `clerkId`, `username` (unique), `email` (unique), `role`, `status` |
-| `category.schema.ts`      | `Category`     | `title`, `slug` (unique), `description`, `status`, `_destroy` |
-| `product.schema.ts`       | `Product`      | `title`, `slug` (unique), `sku` (unique), `price`, `cost`, `quantity`, `minQuantity` (default 5), `category` (ref Category), `author` (ref User), `image`, `status`, `_destroy` |
+| File                      | Model Name     | Các field đặc biệt                                                                                                                                                                    |
+| ------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `user.schema.ts`          | `User`         | `clerkId`, `username` (unique), `email` (unique), `role`, `status`                                                                                                                    |
+| `category.schema.ts`      | `Category`     | `title`, `slug` (unique), `description`, `status`, `_destroy`                                                                                                                         |
+| `product.schema.ts`       | `Product`      | `title`, `slug` (unique), `sku` (unique), `price`, `cost`, `quantity`, `minQuantity` (default 5), `category` (ref Category), `author` (ref User), `image`, `status`, `_destroy`       |
 | `stock-history.schema.ts` | `StockHistory` | `product` (ref Product, required), `action` (enum StockAction, required), `quantity` (required), `previousQuantity` (required), `newQuantity` (required), `note`, `author` (ref User) |
 
 ---
@@ -488,14 +488,14 @@ const role = (user?.publicMetadata?.role as string) ?? "user";
 
 Đầu file: `"use server"`.
 
-| Action                | Mô tả                                                                 |
-| --------------------- | --------------------------------------------------------------------- |
-| `createCategory`      | Check slug trùng → `CategoryModel.create` → `revalidatePath`          |
-| `fetchCategories`     | Phân trang + search + filter status, trả `{ categories, total }`      |
-| `fetchAllCategories`  | Lấy tất cả active categories (cho dropdown), sort by title            |
-| `getCategoryBySlug`   | Lấy 1 category theo slug, filter `_destroy: false`                    |
-| `updateCategory`      | Find by slug → `findOneAndUpdate` → `revalidatePath`                  |
-| `deleteCategory`      | Soft delete: `findOneAndUpdate({ slug }, { _destroy: true })`         |
+| Action               | Mô tả                                                            |
+| -------------------- | ---------------------------------------------------------------- |
+| `createCategory`     | Check slug trùng → `CategoryModel.create` → `revalidatePath`     |
+| `fetchCategories`    | Phân trang + search + filter status, trả `{ categories, total }` |
+| `fetchAllCategories` | Lấy tất cả active categories (cho dropdown), sort by title       |
+| `getCategoryBySlug`  | Lấy 1 category theo slug, filter `_destroy: false`               |
+| `updateCategory`     | Find by slug → `findOneAndUpdate` → `revalidatePath`             |
+| `deleteCategory`     | Soft delete: `findOneAndUpdate({ slug }, { _destroy: true })`    |
 
 **Lưu ý:** Mongoose 9 không còn export `FilterQuery`. Dùng `Record<string, any>` cho query object.
 
@@ -524,14 +524,14 @@ const role = (user?.publicMetadata?.role as string) ?? "user";
 
 ### 11.1 Server Actions (`src/modules/product/actions/product.actions.ts`)
 
-| Action            | Mô tả                                                                                     |
-| ----------------- | ----------------------------------------------------------------------------------------- |
-| `createProduct`   | Check slug + SKU trùng → omit empty author → `ProductModel.create` → tạo StockHistory nếu quantity > 0 |
-| `fetchProducts`   | Phân trang + search (title + sku) + filter status, populate author + category, trả `{ products, total }` |
-| `getProductBySlug`| Lấy 1 product, populate author + category                                                  |
-| `updateProduct`   | Nếu quantity thay đổi → tạo StockHistory → `findOneAndUpdate`                              |
-| `deleteProduct`   | Soft delete                                                                                |
-| `updateStock`     | Nhận action (IN/OUT/ADJUSTMENT) + quantity → tính newQuantity → tạo StockHistory → update product |
+| Action             | Mô tả                                                                                                    |
+| ------------------ | -------------------------------------------------------------------------------------------------------- |
+| `createProduct`    | Check slug + SKU trùng → omit empty author → `ProductModel.create` → tạo StockHistory nếu quantity > 0   |
+| `fetchProducts`    | Phân trang + search (title + sku) + filter status, populate author + category, trả `{ products, total }` |
+| `getProductBySlug` | Lấy 1 product, populate author + category                                                                |
+| `updateProduct`    | Nếu quantity thay đổi → tạo StockHistory → `findOneAndUpdate`                                            |
+| `deleteProduct`    | Soft delete                                                                                              |
+| `updateStock`      | Nhận action (IN/OUT/ADJUSTMENT) + quantity → tính newQuantity → tạo StockHistory → update product        |
 
 **Bug quan trọng đã sửa:**
 - `author` có thể là `""` (user Clerk chưa sync vào MongoDB). Nếu truyền `""` vào field ObjectId, Mongoose sẽ throw `BSONError`.
@@ -570,11 +570,11 @@ const product = await ProductModel.create(createPayload);
 
 ### Server Actions (`src/modules/dashboard/actions/dashboard.actions.ts`)
 
-| Action               | Mô tả                                                                    |
-| -------------------- | ------------------------------------------------------------------------- |
-| `getDashboardStats`  | `Promise.all` count 4 metrics + tính totalInventoryValue (sum price*qty) |
-| `getRecentProducts`  | 5 sản phẩm mới nhất, populate category                                  |
-| `getLowStockProducts`| Sản phẩm có quantity <= minQuantity, dùng `$expr`, sort quantity asc, limit 10 |
+| Action                | Mô tả                                                                          |
+| --------------------- | ------------------------------------------------------------------------------ |
+| `getDashboardStats`   | `Promise.all` count 4 metrics + tính totalInventoryValue (sum price*qty)       |
+| `getRecentProducts`   | 5 sản phẩm mới nhất, populate category                                         |
+| `getLowStockProducts` | Sản phẩm có quantity <= minQuantity, dùng `$expr`, sort quantity asc, limit 10 |
 
 **Low stock query dùng `$expr`:**
 
@@ -608,7 +608,9 @@ Vì các page gọi DB và Clerk auth, không thể static render lúc build.
 ### 13.3 Dashboard Page
 
 - Server component, gọi 3 actions song song: `getDashboardStats`, `getRecentProducts`, `getLowStockProducts`.
-- Render 5 StatCards (Total Products, Categories, Low Stock, Out of Stock, Inventory Value).
+- **QUAN TRỌNG:** Không thể truyền React components (như Lucide icons) trực tiếp từ Server Component sang Client Component.
+- **Giải pháp:** Tạo client component wrapper `DashboardStats` để render StatCards với icons.
+- File: `src/app/(dashboard)/dashboard/components/dashboard-stats.tsx` — client component nhận `stats` data và render StatCards với icons.
 - 2 cards grid: Recent Products list + Low Stock Alerts list.
 
 ### 13.4 Products Page (`/manage/products`)
@@ -650,12 +652,12 @@ Vì các page gọi DB và Clerk auth, không thể static render lúc build.
 
 ### 14.1 Mongoose 9 breaking changes
 
-| Vấn đề | Giải pháp |
-|--------|-----------|
-| `FilterQuery` không còn export từ `mongoose` | Dùng `Record<string, any>` cho query object |
+| Vấn đề                                                     | Giải pháp                                        |
+| ---------------------------------------------------------- | ------------------------------------------------ |
+| `FilterQuery` không còn export từ `mongoose`               | Dùng `Record<string, any>` cho query object      |
 | `_id` trong interface extends `Document` gây conflict type | **KHÔNG** khai báo `_id: string` trong interface |
-| `ObjectId` không assign được cho React `key` prop | Dùng `String(item._id)` |
-| `ObjectId` không assign được cho HTML `value` attribute | Dùng `String(value)` hoặc `.toString()` |
+| `ObjectId` không assign được cho React `key` prop          | Dùng `String(item._id)`                          |
+| `ObjectId` không assign được cho HTML `value` attribute    | Dùng `String(value)` hoặc `.toString()`          |
 
 ### 14.2 Empty ObjectId bug
 
@@ -673,11 +675,11 @@ const payload = {
 
 ### 14.3 Next.js 16 conventions
 
-| Thay đổi | Chi tiết |
-|----------|----------|
+| Thay đổi                     | Chi tiết                                        |
+| ---------------------------- | ----------------------------------------------- |
 | `middleware.ts` → `proxy.ts` | Next.js 16 deprecate "middleware", dùng "proxy" |
-| `searchParams` là `Promise` | Phải `await searchParams` trong page components |
-| `params` là `Promise` | Phải `await params` trong dynamic route pages |
+| `searchParams` là `Promise`  | Phải `await searchParams` trong page components |
+| `params` là `Promise`        | Phải `await params` trong dynamic route pages   |
 
 ### 14.4 Clerk với Next.js 16
 
@@ -686,7 +688,57 @@ const payload = {
 - Import components (`ClerkProvider`, `SignInButton`, ...) từ `@clerk/nextjs`.
 - Đặt proxy.ts ở `src/proxy.ts` khi dùng `src/` directory.
 
-### 14.5 Thứ tự tạo file khuyến nghị
+### 14.5 Passing React Components from Server to Client (CRITICAL BUG)
+
+**Vấn đề:** Không thể truyền React components (functions) từ Server Component sang Client Component.
+
+**Error:**
+```
+Only plain objects can be passed to Client Components from Server Components. Classes or other objects with methods are not supported.
+Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with "use server".
+```
+
+**Nguyên nhân:** Khi Server Component truyền icon component (như `Package` từ `lucide-react`) vào Client Component `StatCard`, Next.js không thể serialize function.
+
+**Giải pháp:** Tạo client component wrapper để render icons bên trong client component.
+
+**Ví dụ sai:**
+```tsx
+// ❌ Server Component
+import { Package } from "lucide-react";
+import { StatCard } from "@/shared/components/ui"; // Client component
+
+export default async function DashboardPage() {
+  return <StatCard icon={Package} />; // Error: Cannot pass function
+}
+```
+
+**Ví dụ đúng:**
+```tsx
+// ✅ Server Component
+import { DashboardStats } from "./components/dashboard-stats";
+
+export default async function DashboardPage() {
+  const stats = await getDashboardStats();
+  return <DashboardStats stats={stats} />;
+}
+
+// ✅ Client Component: src/app/(dashboard)/dashboard/components/dashboard-stats.tsx
+"use client";
+import { Package } from "lucide-react";
+import { StatCard } from "@/shared/components/ui";
+
+export function DashboardStats({ stats }: { stats: DashboardStatsType }) {
+  return <StatCard icon={Package} />; // OK: icons imported in client component
+}
+```
+
+**Quy tắc:**
+- Icons/components phải được import và sử dụng trong cùng client component.
+- Server Component chỉ truyền plain data (strings, numbers, objects, arrays).
+- Nếu cần render icons trong Server Component → tạo client component wrapper.
+
+### 14.6 Thứ tự tạo file khuyến nghị
 
 1. Libs & constants trước (không phụ thuộc gì).
 2. Types → Schemas (types cần constants, schemas cần types).
@@ -719,6 +771,7 @@ const payload = {
 - [ ] Tạo `src/modules/product/` (actions + components)
 - [ ] Tạo `src/modules/dashboard/` (actions)
 - [ ] Tạo `src/app/(dashboard)/layout.tsx` (protected layout)
+- [ ] Tạo `src/app/(dashboard)/dashboard/components/dashboard-stats.tsx` (client wrapper cho StatCards với icons)
 - [ ] Tạo tất cả route pages (dashboard, products, categories)
 - [ ] Tạo landing page
 - [ ] Chạy `npx tsc --noEmit` kiểm tra TypeScript
