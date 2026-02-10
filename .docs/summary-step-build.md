@@ -272,6 +272,62 @@ body {
 }
 ```
 
+**Giải thích chi tiết từng phần:**
+
+1. **`@import "tailwindcss";`**
+   - Import Tailwind CSS 4 vào project
+   - Phải đặt ở dòng đầu tiên của file
+   - Không cần import `base`, `components`, `utilities` như Tailwind 3
+
+2. **`@theme inline { }`**
+   - Syntax mới của Tailwind CSS 4 để định nghĩa custom theme variables
+   - Các biến CSS được đăng ký trực tiếp vào Tailwind theme
+   - Format: `--color-{name}: {value}` để tạo custom colors
+   - Có thể sử dụng các biến này trong Tailwind classes (ví dụ: `bg-primary`, `text-success`)
+
+3. **CSS Variables được định nghĩa:**
+   - `--color-background` (#f8fafc): Màu nền chính của app (slate-50)
+   - `--color-foreground` (#0f172a): Màu chữ chính (slate-900)
+   - `--color-sidebar-bg` (#1e293b): Màu nền sidebar (slate-800)
+   - `--color-sidebar-text` (#e2e8f0): Màu chữ sidebar (slate-200)
+   - `--color-primary` (#3b82f6): Màu chính (blue-500)
+   - `--color-primary-hover` (#2563eb): Màu hover của primary (blue-600)
+   - `--color-success` (#22c55e): Màu thành công (green-500)
+   - `--color-warning` (#f59e0b): Màu cảnh báo (amber-500)
+   - `--color-danger` (#ef4444): Màu nguy hiểm/lỗi (red-500)
+   - `--color-muted` (#64748b): Màu chữ phụ (slate-500)
+
+4. **`body { }` styles:**
+   - Áp dụng màu nền và màu chữ mặc định cho toàn bộ app
+   - Sử dụng CSS variables để dễ dàng thay đổi theme sau này
+   - Có thể override trong các component cụ thể nếu cần
+
+**Cách sử dụng CSS variables trong code:**
+
+```tsx
+// Sử dụng trực tiếp trong inline styles
+<div style={{ backgroundColor: 'var(--color-primary)' }}>
+  Primary background
+</div>
+
+// Sử dụng trong Tailwind classes (nếu đã map trong tailwind.config.ts)
+<div className="bg-primary text-white">
+  Primary background với Tailwind
+</div>
+
+// Sử dụng trong CSS modules hoặc styled-components
+const StyledDiv = styled.div`
+  background-color: var(--color-primary);
+  color: var(--color-foreground);
+`;
+```
+
+**Lưu ý quan trọng:**
+- File này PHẢI được import trong `src/app/layout.tsx` để Tailwind hoạt động
+- Không được đổi tên file hoặc di chuyển sang thư mục khác
+- Các biến CSS có thể được override trong component-level CSS nếu cần
+- Tailwind CSS 4 tự động nhận diện các biến trong `@theme inline` block
+
 #### 3.4.3 Import globals.css trong Root Layout
 
 File `src/app/layout.tsx` PHẢI import `globals.css`:
